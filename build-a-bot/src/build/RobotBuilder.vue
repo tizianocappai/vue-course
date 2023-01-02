@@ -1,35 +1,59 @@
 <template>
-  <div>
+  <div class="content">
+    <button class="add-to-cart" @click="addToCart()">Add to Cart</button>
     <div class="top-row">
       <div class="top part">
-        <img v-bind:src="availableParts.heads[selectedHeadIndex].src" title="head" />
-        <button v-on:click="selectPrevHead()" class="prev-selector">&#9668;</button>
-        <button v-on:click="selectNextHead()" class="next-selector">&#9658;</button>
+        <div class="robot-name">
+          {{ selectedRobot.head.title }}
+          <span v-if="selectedRobot.head.onSale" class="sale">Sale !</span>
+        </div>
+        <img :src="selectedRobot.head.src" title="head" />
+        <button @click="selectPrevHead()" class="prev-selector">&#9668;</button>
+        <button @click="selectNextHead()" class="next-selector">&#9658;</button>
       </div>
     </div>
     <div class="middle-row">
       <div class="left part">
-        <img v-bind:src="availableParts.arms[selectedLeftArmIndex].src" title="left arm" />
-        <button v-on:click="selectPrevLeftArm()" class="prev-selector">&#9650;</button>
-        <button v-on:click="selectNextLeftArm()" class="next-selector">&#9660;</button>
+        <img :src="selectedRobot.leftArm.src" title="left arm" />
+        <button @click="selectPrevLeftArm()" class="prev-selector">&#9650;</button>
+        <button @click="selectNextLeftArm()" class="next-selector">&#9660;</button>
       </div>
       <div class="center part">
-        <img v-bind:src="availableParts.torsos[selectedTorsoIndex].src" title="center part" />
-        <button v-on:click="selectPrevTorso()" class="prev-selector">&#9668;</button>
-        <button v-on:click="selectNextTorso()" class="next-selector">&#9658;</button>
+        <img :src="selectedRobot.torso.src" title="center part" />
+        <button @click="selectPrevTorso()" class="prev-selector">&#9668;</button>
+        <button @click="selectNextTorso()" class="next-selector">&#9658;</button>
       </div>
       <div class="right part">
-        <img v-bind:src="availableParts.arms[selectedRightArmIndex].src" title="right arm" />
-        <button v-on:click="selectPrevRightArm()" class="prev-selector">&#9650;</button>
-        <button v-on:click="selectNextRightArm()" class="next-selector">&#9660;</button>
+        <img :src="selectedRobot.rightArm.src" title="right arm" />
+        <button @click="selectPrevRightArm()" class="prev-selector">&#9650;</button>
+        <button @click="selectNextRightArm()" class="next-selector">&#9660;</button>
       </div>
     </div>
     <div class="bottom-row">
       <div class="bottom part">
-        <img v-bind:src="availableParts.bases[selectedLegIndex].src" title="bases" />
-        <button v-on:click="selectPrevLeg()" class="prev-selector">&#9668;</button>
-        <button v-on:click="selectNextLeg()" class="next-selector">&#9658;</button>
+        <img :src="selectedRobot.base.src" title="bases" />
+        <button @click="selectPrevLeg()" class="prev-selector">&#9668;</button>
+        <button @click="selectNextLeg()" class="next-selector">&#9658;</button>
       </div>
+    </div>
+    <div>
+      <h1>Cart</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Robot</th>
+            <th class="cost"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(robot, index) in cart" :key="index">
+            <td>
+              {{ robot.head.title }}
+            </td>
+            <td class="cost">{{ robot.cost }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -42,6 +66,7 @@ export default {
   data() {
     return {
       availableParts,
+      cart: [],
       selectedHeadIndex: 0,
       selectedTorsoIndex: 0,
       selectedLegIndex: 0,
@@ -49,55 +74,107 @@ export default {
       selectedRightArmIndex: 0,
     };
   },
+  computed: {
+    selectedRobot() {
+      return {
+        head: availableParts.heads[this.selectedHeadIndex],
+        leftArm: availableParts.arms[this.selectedLeftArmIndex],
+        rightArm: availableParts.arms[this.selectedRightArmIndex],
+        torso: availableParts.torsos[this.selectedTorsoIndex],
+        base: availableParts.bases[this.selectedLegIndex],
+      };
+    },
+  },
   methods: {
+    addToCart() {
+      const robot = this.selectedRobot;
+      const cost =
+        robot.head.cost +
+        robot.leftArm.cost +
+        robot.rightArm.cost +
+        robot.torso.cost +
+        robot.base.cost;
+      console.log({ ...robot, cost });
+      this.cart.push({ ...robot, cost });
+    },
     selectNextHead() {
       console.log("selectNextHead called");
-      if (this.selectedHeadIndex === this.availableParts.heads.length - 1) return;
+      if (this.selectedHeadIndex === this.availableParts.heads.length - 1) {
+        this.selectedHeadIndex = 0;
+        return;
+      }
       this.selectedHeadIndex += 1;
     },
     selectPrevHead() {
       console.log("selectPrevHead called");
-      if (this.selectedHeadIndex === 0) return;
+      if (this.selectedHeadIndex === 0) {
+        this.selectedHeadIndex = this.availableParts.heads.length - 1;
+        return;
+      }
       this.selectedHeadIndex -= 1;
     },
     selectNextTorso() {
       console.log("selectNextTorso called");
-      if (this.selectedTorsoIndex === this.availableParts.torsos.length - 1) return;
+      if (this.selectedTorsoIndex === this.availableParts.torsos.length - 1) {
+        this.selectedTorsoIndex = 0;
+        return;
+      }
       this.selectedTorsoIndex += 1;
     },
     selectPrevTorso() {
       console.log("selectPrevTorso called");
-      if (this.selectedTorsoIndex === 0) return;
+      if (this.selectedTorsoIndex === 0) {
+        this.selectedTorsoIndex = this.availableParts.torsos.length - 1;
+        return;
+      }
       this.selectedTorsoIndex -= 1;
     },
     selectNextLeg() {
       console.log("selectNextLeg called");
-      if (this.selectedLegIndex === this.availableParts.bases.length - 1) return;
+      if (this.selectedLegIndex === this.availableParts.bases.length - 1) {
+        this.selectedLegIndex = 0;
+        return;
+      }
       this.selectedLegIndex += 1;
     },
     selectPrevLeg() {
       console.log("selectPrevLeg called");
-      if (this.selectedLegIndex === 0) return;
+      if (this.selectedLegIndex === 0) {
+        this.selectedLegIndex = this.availableParts.bases.length - 1;
+        return;
+      }
       this.selectedLegIndex -= 1;
     },
     selectNextLeftArm() {
       console.log("selectNextLeftArm called");
-      if (this.selectedLeftArmIndex === this.availableParts.arms.length - 1) return;
+      if (this.selectedLeftArmIndex === this.availableParts.arms.length - 1) {
+        this.selectedLeftArmIndex = 0;
+        return;
+      }
       this.selectedLeftArmIndex += 1;
     },
     selectPrevLeftArm() {
       console.log("selectPrevLeftArm called");
-      if (this.selectedLeftArmIndex === 0) return;
+      if (this.selectedLeftArmIndex === 0) {
+        this.selectedLeftArmIndex = this.availableParts.arms.length - 1;
+        return;
+      }
       this.selectedLeftArmIndex -= 1;
     },
     selectNextRightArm() {
       console.log("selectNextRightArm called");
-      if (this.selectedRightArmIndex === this.availableParts.arms.length - 1) return;
+      if (this.selectedRightArmIndex === this.availableParts.arms.length - 1) {
+        this.selectedRightArmIndex = 0;
+        return;
+      }
       this.selectedRightArmIndex += 1;
     },
     selectPrevRightArm() {
       console.log("selectPrevRightArm called");
-      if (this.selectedRightArmIndex === 0) return;
+      if (this.selectedRightArmIndex === 0) {
+        this.selectedRightArmIndex = this.availableParts.arms.length - 1;
+        return;
+      }
       this.selectedRightArmIndex -= 1;
     },
   },
@@ -193,5 +270,34 @@ export default {
 }
 .right .next-selector {
   right: -3px;
+}
+.robot-name {
+  position: absolute;
+  top: -25px;
+  text-align: center;
+  width: 100%;
+}
+.sale {
+  color: red;
+}
+.content {
+  position: relative;
+}
+
+.add-to-cart {
+  position: absolute;
+  right: 30px;
+  width: 220px;
+  padding: 3px;
+  font-size: 16px;
+}
+
+td,
+th {
+  text-align: left;
+  padding: 5px 20px 5px 5px;
+}
+.cost {
+  text-align: right;
 }
 </style>
